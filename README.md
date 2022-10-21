@@ -6,6 +6,7 @@
 選擇權的價格為當前中間價 + 0.1
 
 ## Install in Google Cloud Ubuntu 20.04
+```
 sudo apt update
 sudo apt install python3-pip python3.8-venv git
 git clone https://github.com/kaso1114/td_api
@@ -13,9 +14,12 @@ cd td_api
 python3 -m venv .venv
 source .venv/bin/activate
 pip install tda-api pandas
+
+# 修改為台灣時區
 timedatectl
 sudo timedatectl set-timezone Asia/Taipei
 systemctl restart cron
+```
 
 ## Create secretsTDA file
 1. 去 https://developer.tdameritrade.com/ 創建 MyApps，MyApps 的 Consumer Key 即為 **api_key**
