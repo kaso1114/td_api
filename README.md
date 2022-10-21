@@ -1,9 +1,15 @@
 # SPX option 準日交易
-台灣時間 二~六 早上3點40 下單 明天到期的 (SPXW * 0.96)/(SPXW * 0.96)-50 價格的 sell put spreads
+因為我在台灣，時間都以 台灣時間為主 (UTC+8)
+
+台灣時間 二~六 早上3點35分 下單 明天到期的 (SPXW * 0.96)/(SPXW * 0.96)-50 價格的 sell put spreads
+
+選擇權的價格為當前中間價 + 0.1
 
 ## Install in Google Cloud Ubuntu 20.04
 sudo apt update
-sudo apt install python3-pip python3.8-venv
+sudo apt install python3-pip python3.8-venv git
+git clone https://github.com/kaso1114/td_api
+cd td_api
 python3 -m venv .venv
 source .venv/bin/activate
 pip install tda-api pandas

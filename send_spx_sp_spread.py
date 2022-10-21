@@ -62,7 +62,7 @@ def main():
 
     # Send order
     description = " ".join(sp["description"].split(" ")[0:4])
-    net_credit = round(((sp["bid"] - bp["bid"]) + (sp["ask"] - bp["ask"])) / 2, 2) + 0.05   # add 0.1 by test..
+    net_credit = round(((sp["bid"] - bp["bid"]) + (sp["ask"] - bp["ask"])) / 2, 2) + 0.1   # add 0.1 by test..
     print(f'SPX index price: {underlyingPrice}')
     print(f'{description} {sp["strikePrice"]:.0f}/{bp["strikePrice"]:.0f} sell put spread ${net_credit*QUANITY*100:,.0f}')
     if PLACE_ORDER:
