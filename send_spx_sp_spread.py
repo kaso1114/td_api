@@ -62,13 +62,14 @@ def main():
 
     # Send order
     description = " ".join(sp["description"].split(" ")[0:4])
-    net_credit = round(((sp["bid"] - bp["bid"]) + (sp["ask"] - bp["ask"])) / 2, 2) + 0.1   # add 0.1 by test..
+    mid_net = round(((sp["bid"] + sp["ask"]) - (bp["bid"] + bp["ask"])) / 2 // 0.05 * 0.05, 2)
+    net = mid_net + 0.1   # add 0.1 by test..
     print(f'SPX index price: {underlyingPrice}')
-    print(f'{description} {sp["strikePrice"]:.0f}/{bp["strikePrice"]:.0f} sell put spread ${net_credit*QUANITY*100:,.0f}')
+    print(f'{description} {sp["strikePrice"]:.0f}/{bp["strikePrice"]:.0f} sell put spread ${net*QUANITY*100:,.0f}')
     if PLACE_ORDER:
         r = c.place_order(
             secretsTDA.account_id,
-            bull_put_vertical_open(bp["symbol"], sp["symbol"], QUANITY, net_credit).build()
+            bull_put_vertical_open(bp["symbol"], sp["symbol"], QUANITY, net).build()
         )
         r.raise_for_status()
         if r.status_code in [200, 201]:
