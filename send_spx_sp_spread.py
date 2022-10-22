@@ -19,12 +19,12 @@ def get_sell_put_spread_chains(underlyingPrice, put_chains_df, dte):
         raise ValueError(">> Can't find sell put chain")
 
     # Get buy put chain
-    strike_price = strike_price - 50
-    bp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price) & (put_chains_df.symbol.str.startswith("SPXW_"))]
+    strike_price_2 = strike_price - 50
+    bp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price_2) & (put_chains_df.symbol.str.startswith("SPXW_"))]
     if bp_df.shape[0] == 0:
-        strike_price = (strike_price - 50) - 5
-        bp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price) & (put_chains_df.symbol.str.startswith("SPXW_"))]
-        print(f'Change buy put price to {strike_price}')
+        strike_price_2 = strike_price - 55
+        bp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price_2) & (put_chains_df.symbol.str.startswith("SPXW_"))]
+        print(f'Change buy put price to {strike_price_2}')
     if bp_df.shape[0] == 0:
         raise ValueError(">> Can't find buy put chain")
     return sp_df.to_dict('records')[0], bp_df.to_dict('records')[0]
