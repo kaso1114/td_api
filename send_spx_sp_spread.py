@@ -81,5 +81,5 @@ def main():
 
 if __name__ == "__main__":
     PLACE_ORDER = True
-    QUANITY = 2
+    QUANITY = 3
     main()
