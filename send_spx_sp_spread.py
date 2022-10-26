@@ -7,12 +7,12 @@ from tda.utils import Utils
 from tda.orders.options import bull_put_vertical_open
 
 
-def get_sell_put_spread_chains(underlyingPrice, put_chains_df, dte):
+def get_sell_put_spread_chains(main_price, put_chains_df, dte):
     # Get sell put chain
-    strike_price = underlyingPrice * 0.96 // 5 * 5
+    strike_price = main_price
     sp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price) & (put_chains_df.symbol.str.startswith("SPXW_"))]
     if sp_df.shape[0] == 0:
-        strike_price = (underlyingPrice * 0.96 // 5 * 5) - 5
+        strike_price = main_price - 5
         sp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price) & (put_chains_df.symbol.str.startswith("SPXW_"))]
         print(f'Change sell put price to {strike_price}')
     if sp_df.shape[0] == 0:
@@ -28,6 +28,19 @@ def get_sell_put_spread_chains(underlyingPrice, put_chains_df, dte):
     if bp_df.shape[0] == 0:
         raise ValueError(">> Can't find buy put chain")
     return sp_df.to_dict('records')[0], bp_df.to_dict('records')[0]
+
+
+def send_order(c, long_put_symbol, short_put_symbol, quantity, net_credit):
+    r = c.place_order(
+        secretsTDA.account_id,
+        bull_put_vertical_open(long_put_symbol, short_put_symbol, quantity, net_credit).build()
+    )
+    r.raise_for_status()
+    if r.status_code in [200, 201]:
+        order_id = Utils(c, secretsTDA.account_id).extract_order_id(r)
+        print(f'Order ID: {order_id}')
+    else:
+        print(f'Send order failed: {r.status_code}')
 
 
 def main():
@@ -58,28 +71,31 @@ def main():
 
     # Get sell put spread chains
     underlyingPrice = chains["underlyingPrice"]
-    sp, bp = get_sell_put_spread_chains(underlyingPrice, put_chains_df, dte)
+    nain_price = underlyingPrice * 0.96 // 5 * 5
+    sp, bp = get_sell_put_spread_chains(nain_price, put_chains_df, dte)
 
-    # Send order
+    # Send order 1
     description = " ".join(sp["description"].split(" ")[0:4])
-    mid_price = round(((sp["bid"] + sp["ask"]) - (bp["bid"] + bp["ask"])) / 2 // 0.05 * 0.05, 2) + 0.05
+    mid_price = round(((sp["bid"] + sp["ask"]) - (bp["bid"] + bp["ask"])) / 2 // 0.05 * 0.05, 2)
     print(f'SPX index price: {underlyingPrice}')
-    print(f'{description} {sp["strikePrice"]:.0f}/{bp["strikePrice"]:.0f} sell put spread ${mid_price*QUANITY*100:,.0f}')
+    print(f'{description} {sp["strikePrice"]:.0f}/{bp["strikePrice"]:.0f} sell put spread, {mid_price=}')
+    quanity = QUANITY - 1
+    price = mid_price
+    print(f'Send {quanity} order, get ${price*quanity*100:,.0f} premium')
     if PLACE_ORDER:
-        r = c.place_order(
-            secretsTDA.account_id,
-            bull_put_vertical_open(bp["symbol"], sp["symbol"], QUANITY, mid_price).build()
-        )
-        r.raise_for_status()
-        if r.status_code in [200, 201]:
-            order_id = Utils(c, secretsTDA.account_id).extract_order_id(r)
-            print(f'Send order succeed: {order_id}')
-        else:
-            print(f'Send order failed: {r.status_code}')
-    print('-' * 50)
+        send_order(c, bp["symbol"], sp["symbol"], quanity, price)
+
+    # Send order 2
+    quanity = 1
+    price = mid_price + 0.05
+    print(f'Send 1 order, get ${price*quanity*100:,.0f} premium')
+    if PLACE_ORDER:
+        send_order(c, bp["symbol"], sp["symbol"], quanity, price)
+
 
 
 if __name__ == "__main__":
     PLACE_ORDER = True
-    QUANITY = 3
+    QUANITY = 3     # must >= 2
     main()
+    print('-' * 50)
