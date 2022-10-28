@@ -69,22 +69,27 @@ def send_order(main_opt, min_opt, c):
     # Get spread type
     if main_opt["putCall"] == "PUT":
         spread_type = "sell put"
+        quanity = SP_QUANITY
+        min_price = SP_MIN_PRICE
     else:
         spread_type = "sell call"
+        quanity = SC_QUANITY
+        min_price = SC_MIN_PRICE
+
 
     # Get option middle price
     mid_price = round(((main_opt["bid"] + main_opt["ask"]) - (min_opt["bid"] + min_opt["ask"])) / 2 // 0.05 * 0.05, 2)
-    order_price = max(mid_price, SP_MIN_PRICE)
+    order_price = max(mid_price, min_price)
     description = " ".join(main_opt["description"].split(" ")[0:4])
     print(f'{description} {main_opt["strikePrice"]:.0f}/{min_opt["strikePrice"]:.0f} {spread_type} spread, {order_price=}')
 
     # Send mid_price order
-    print(f'Send {SP_QUANITY - 1} order, get ${order_price*(SP_QUANITY - 1)*100:,.0f} premium')
+    print(f'\t Send {quanity - 1} order, get ${order_price*(quanity - 1)*100:,.0f} premium')
     if PLACE_ORDER:
-        place_order(c, min_opt["symbol"], main_opt["symbol"], SP_QUANITY - 1, order_price)
+        place_order(c, min_opt["symbol"], main_opt["symbol"], quanity - 1, order_price)
 
     # Send mid_price+0.5 order
-    print(f'Send 1 order, get ${(order_price + 0.05)*1*100:,.0f} premium')
+    print(f'\t Send 1 order, get ${(order_price + 0.05)*1*100:,.0f} premium')
     if PLACE_ORDER:
         place_order(c, min_opt["symbol"], main_opt["symbol"], 1, order_price + 0.05)
 
