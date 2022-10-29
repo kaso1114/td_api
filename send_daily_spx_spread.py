@@ -99,7 +99,7 @@ def main():
     today = datetime.today()
     weekly = today.weekday() + 1
     if weekly in [2, 3, 4, 5]:
-        dte = 1 + 2
+        dte = 1
     elif weekly == 6:
         dte = 3
     else:
@@ -130,23 +130,27 @@ def main():
     call_chains_df.delta = call_chains_df.delta.astype(float)
 
     # Send sell put spread order
-    strike_price = int(underlying_price * 0.96 // 5 * 5)
-    sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
-    send_order(sp, bp, c)
+    if SC_QUANITY:
+        strike_price = int(underlying_price * 0.96 // 5 * 5)
+        sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
+        print(sp)
+        send_order(sp, bp, c)
 
     # Send sell call spread order
-    strike_price = int(underlying_price * 1.04 // 5 * 5)
-    sc, bc = get_sell_call_spread_chains(strike_price, call_chains_df, dte)
-    send_order(sc, bc, c)
+    if SC_QUANITY:
+        strike_price = int(underlying_price * 1.04 // 5 * 5)
+        sc, bc = get_sell_call_spread_chains(strike_price, call_chains_df, dte)
+        send_order(sc, bc, c)
+
     print('-' * 50)
 
 
 if __name__ == "__main__":
     PLACE_ORDER = True
     # Sell put spreads
-    SP_QUANITY = 3         # Quanity must >= 2
+    SP_QUANITY = 3         # Quanity must >= 2, or == 0
     SP_MIN_PRICE = 0.15    # If middle price < min_price, use min_price
     # Sell call spreads
-    SC_QUANITY = 2         # Quanity must >= 2
+    SC_QUANITY = 2         # Quanity must >= 2, or == 0
     SC_MIN_PRICE = 0.15    # If middle price < min_price, use min_price
     main()
