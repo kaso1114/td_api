@@ -37,6 +37,10 @@ pip install tda-api pandas
     token_path = 'token.json'
     redirect_uri = 'https://localhost'
     ```
+5. 假如你有 slack webhook，可填入 URL 到 secretsTDA.py，並且 ENABLE_WEBHOOK＝True，即可每日通知結果
+    ```
+    webhook_url = "https://hooks.slack.com/services/
+    ```
 
 ## Run Script
 Run script in crontab
