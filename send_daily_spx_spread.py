@@ -117,9 +117,9 @@ def main():
     # Get days to expiration
     today = datetime.today()
     weekly = today.weekday() + 1
-    if weekly in [2, 3, 4, 5]:
+    if weekly in [1, 2, 3, 4]:
         dte = 1
-    elif weekly == 6:
+    elif weekly == 5:
         dte = 3
     else:
         raise ValueError(f'{today} is Week {weekly}')

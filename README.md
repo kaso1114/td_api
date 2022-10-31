@@ -1,17 +1,17 @@
 # SPX option 準日交易
-因為我在台灣，時間都以 台灣時間為主 (UTC+8)
+因為我在台灣 (UTC+8)，美東時間 15:35，在台灣是凌晨 03:35，在睡夢中是無法盯盤的
 
-台灣時間 二~六 早上3點35分 下單 明天到期的
+所以程式會在 美東時間 星期一~五 15:35 下單 明天到期的
     (SPXW * 0.96)/((SPXW * 0.96)-50) 價格的 sell put spreads 和
     (SPXW * 1.04)/((SPXW * 1.04)+50) 價格的 sell call spreads
 
-選擇權的價格為當前 **中間價** 和 **中間價+0.05**
+選擇權的價格為當前 **中間價**
 
 ## Install
-### 修改為台灣時區
+### 修改為美東時區
 ```bash
 timedatectl
-sudo timedatectl set-timezone Asia/Taipei
+sudo timedatectl set-timezone America/New_York
 systemctl restart cron
 ```
 
@@ -45,5 +45,5 @@ pip install tda-api pandas
 ## Run Script
 Run script in crontab
 ```bash
-35 03 * * 2-6 cd /home/kaso1114/td_api/; .venv/bin/python send_daily_spx_spread.py >> log.txt 2>&1
+35 15 * * 1-5 cd /home/kaso1114/td_api/; .venv/bin/python send_daily_spx_spread.py >> log.txt 2>&1
 ```
