@@ -150,15 +150,21 @@ def main():
 
     # Send sell put spread order
     if SC_QUANITY:
-        strike_price = int(underlying_price * 0.96 // 5 * 5)
-        sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
-        send_order(sp, bp, c)
+        try:
+            strike_price = int(underlying_price * 0.96 // 5 * 5)
+            sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
+            send_order(sp, bp, c)
+        except ValueError as e:
+            output_buf(e)
 
     # Send sell call spread order
     if SC_QUANITY:
-        strike_price = int(underlying_price * 1.04 // 5 * 5)
-        sc, bc = get_sell_call_spread_chains(strike_price, call_chains_df, dte)
-        send_order(sc, bc, c)
+        try:
+            strike_price = int(underlying_price * 1.04 // 5 * 5)
+            sc, bc = get_sell_call_spread_chains(strike_price, call_chains_df, dte)
+            send_order(sc, bc, c)
+        except ValueError as e:
+            output_buf(e)
 
     output_buf(f'End time: {datetime.today():%Y/%m/%d %H:%M}', webhook=ENABLE_WEBHOOK)
 
