@@ -23,7 +23,7 @@ git clone https://github.com/kaso1114/td_api
 cd td_api
 python3 -m venv .venv
 source .venv/bin/activate
-pip install tda-api pandas
+pip install -r requirements.txt
 ```
 
 ### Create secretsTDA file

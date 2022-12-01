@@ -1,3 +1,4 @@
+import time
 from datetime import date, timedelta, datetime
 
 import requests
@@ -5,6 +6,7 @@ import secretsTDA
 import pandas as pd
 from tda import auth
 from tda.utils import Utils
+from interval import Interval
 from tda.orders.options import bull_put_vertical_open
 
 
@@ -26,6 +28,15 @@ def output_buf(text, webhook=False):
         buf = []
 
 
+def now_in_interval(start_time, end_time):
+    now_localtime = time.strftime("%H:%M:%S", time.localtime())
+    now_time = Interval(now_localtime, now_localtime)
+    if now_time in Interval(start_time, end_time):
+        return True
+    else:
+        return False
+
+
 def get_sell_put_spread_chains(main_price, put_chains_df, dte):
     # Get sell put chain
     strike_price = main_price
@@ -35,7 +46,8 @@ def get_sell_put_spread_chains(main_price, put_chains_df, dte):
         sp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price) & (put_chains_df.symbol.str.startswith("SPXW_"))]
         output_buf(f'Change sell put price to {strike_price}')
     if sp_df.shape[0] == 0:
-        raise ValueError(f">> Can't find sell put chain by {strike_price=}, {dte=}")
+        output_buf(f">> Can't find sell put chain by {strike_price=}, {dte=}")
+        return False, False
 
     # Get buy put chain
     strike_price_2 = strike_price - 50
@@ -45,7 +57,9 @@ def get_sell_put_spread_chains(main_price, put_chains_df, dte):
         bp_df = put_chains_df[(put_chains_df.daysToExpiration == dte) & (put_chains_df.strikePrice == strike_price_2) & (put_chains_df.symbol.str.startswith("SPXW_"))]
         output_buf(f'Change buy put price to {strike_price_2}')
     if bp_df.shape[0] == 0:
-        raise ValueError(f">> Can't find buy put chain by {strike_price_2=}, {dte=}")
+        output_buf(f">> Can't find buy put chain by {strike_price_2=}, {dte=}")
+        return False, False
+
     return sp_df.to_dict('records')[0], bp_df.to_dict('records')[0]
 
 
@@ -58,7 +72,8 @@ def get_sell_call_spread_chains(main_price, call_chains_df, dte):
         sp_df = call_chains_df[(call_chains_df.daysToExpiration == dte) & (call_chains_df.strikePrice == strike_price) & (call_chains_df.symbol.str.startswith("SPXW_"))]
         output_buf(f'Change sell call price to {strike_price}')
     if sp_df.shape[0] == 0:
-        raise ValueError(f">> Can't find sell call chain by {strike_price=}, {dte=}")
+        output_buf(f">> Can't find sell call chain by {strike_price=}, {dte=}")
+        return False, False
 
     # Get buy call chain
     strike_price_2 = strike_price + 50
@@ -68,7 +83,9 @@ def get_sell_call_spread_chains(main_price, call_chains_df, dte):
         bp_df = call_chains_df[(call_chains_df.daysToExpiration == dte) & (call_chains_df.strikePrice == strike_price_2) & (call_chains_df.symbol.str.startswith("SPXW_"))]
         output_buf(f'Change buy call price to {strike_price_2}')
     if bp_df.shape[0] == 0:
-        raise ValueError(f">> Can't find buy call chain by {strike_price_2=}, {dte=}")
+        output_buf(f">> Can't find buy call chain by {strike_price_2=}, {dte=}")
+        return False, False
+
     return sp_df.to_dict('records')[0], bp_df.to_dict('records')[0]
 
 
@@ -153,25 +170,31 @@ def main():
         try:
             strike_price = int(underlying_price * 0.96 // 5 * 5)
             sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
-            send_order(sp, bp, c)
+            if sp and bp:
+                send_order(sp, bp, c)
         except ValueError as e:
-            output_buf(e)
+            output_buf(f"{e}")
 
     # Send sell call spread order
     if SC_QUANITY:
         try:
             strike_price = int(underlying_price * 1.04 // 5 * 5)
             sc, bc = get_sell_call_spread_chains(strike_price, call_chains_df, dte)
-            send_order(sc, bc, c)
+            if sc and bc:
+                send_order(sc, bc, c)
         except ValueError as e:
-            output_buf(e)
+            output_buf(f"{e}")
 
     output_buf(f'End time: {datetime.today():%Y/%m/%d %H:%M}', webhook=ENABLE_WEBHOOK)
 
 
 if __name__ == "__main__":
     ENABLE_WEBHOOK = True   # Must webhook_url exist in secretsTDA module
-    PLACE_ORDER = True
+
+    if now_in_interval("15:00", "14:00"):
+        PLACE_ORDER = True
+    else:
+        PLACE_ORDER = False
 
     # Sell put spreads
     SP_QUANITY = 3          # Quanity must >= 2, or == 0
