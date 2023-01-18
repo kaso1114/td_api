@@ -166,7 +166,7 @@ def main():
     call_chains_df.delta = call_chains_df.delta.astype(float)
 
     # Send sell put spread order
-    if SC_QUANITY:
+    if SP_QUANITY:
         try:
             strike_price = int(underlying_price * 0.96 // 5 * 5)
             sp, bp = get_sell_put_spread_chains(strike_price, put_chains_df, dte)
@@ -191,16 +191,16 @@ def main():
 if __name__ == "__main__":
     ENABLE_WEBHOOK = True   # Must webhook_url exist in secretsTDA module
 
-    if now_in_interval("15:00", "14:00"):
+    if now_in_interval("15:00", "16:00"):
         PLACE_ORDER = True
     else:
         PLACE_ORDER = False
 
     # Sell put spreads
-    SP_QUANITY = 3          # Quanity must >= 2, or == 0
-    SP_MIN_PRICE = 0.15     # If middle price < min_price, use min_price
+    SP_QUANITY = 2          # Quanity must >= 2, or == 0
+    SP_MIN_PRICE = 0.10     # If middle price < min_price, use min_price
     # Sell call spreads
-    SC_QUANITY = 2          # Quanity must >= 2, or == 0
+    SC_QUANITY = 0          # Quanity must >= 2, or == 0
     SC_MIN_PRICE = 0.15     # If middle price < min_price, use min_price
     main()
     print('-' * 50)
