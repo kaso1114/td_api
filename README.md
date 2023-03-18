@@ -1,21 +1,19 @@
-# SPX option 準日交易
-因為我在台灣 (UTC+8)，美東時間 15:35，在台灣是凌晨 03:35，在睡夢中是無法盯盤的
+# SPX Option 準日交易
+- 因為我在台灣 (UTC+8)，美東時間 15:35，在台灣是凌晨 03:35，在睡夢中是無法盯盤的
+- 所以程式會在 美東時間 星期一 ~ 五 16:35 下單 明天到期的:
+    - (SPXW * 0.96) / (SPXW * 0.96 - 50) 價格的 sell put spreads
+    - (SPXW * 1.04) / (SPXW * 1.04 + 50) 價格的 sell call spreads
+- 選擇權的價格為當前 **中間價**
 
-所以程式會在 美東時間 星期一~五 16:35 下單 明天到期的
-    (SPXW * 0.96)/((SPXW * 0.96)-50) 價格的 sell put spreads 和
-    (SPXW * 1.04)/((SPXW * 1.04)+50) 價格的 sell call spreads
-
-選擇權的價格為當前 **中間價**
-
-## Install
-### 修改為美東時區
+## Install Script
+### 1. 修改為美東時區
 ```bash
 timedatectl
 sudo timedatectl set-timezone America/New_York
 systemctl restart cron
 ```
 
-### Install td_api
+### 2. Install TD API
 ```bash
 sudo apt update
 sudo apt install python3-pip python3.8-venv git
@@ -26,19 +24,19 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Create secretsTDA file
+### 3. Create SecretsTDA File
 1. 去 https://developer.tdameritrade.com/ 創建 MyApps，MyApps 的 Consumer Key 即為 **api_key**
 2. **account_id** 即為 TD 官網裡的 Account number
 3. 創建 secretsTDA.py 檔案到 td_api 目錄裡
 4. 把你的 api_key 和 account_id 填到 secretsTDA.py
-    ```
+    ```bash
     api_key = 'ABCDABCDABCDABCDABCDABCDABCDABCD'
     account_id = 812345678
     token_path = 'token.json'
     redirect_uri = 'https://localhost'
     ```
 5. 假如你有 slack webhook，可填入 URL 到 secretsTDA.py，並且 ENABLE_WEBHOOK＝True，即可每日通知結果
-    ```
+    ```bash
     webhook_url = "https://hooks.slack.com/services/
     ```
 
