@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     # Sell put spreads
     SP_QUANITY = 2          # Quanity must >= 2, or == 0
-    SP_MIN_PRICE = 0.10     # If middle price < min_price, use min_price
+    SP_MIN_PRICE = 0.15     # If middle price < min_price, use min_price
     # Sell call spreads
     SC_QUANITY = 0          # Quanity must >= 2, or == 0
     SC_MIN_PRICE = 0.15     # If middle price < min_price, use min_price
